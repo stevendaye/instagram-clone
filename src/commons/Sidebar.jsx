@@ -1,4 +1,4 @@
-import { Avatar, Box, Flex, Link, Tooltip } from "@chakra-ui/react";
+import { Avatar, Box, Button, Flex, Link, Tooltip } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import {
   CreatePostLogo as PostIcon,
@@ -7,11 +7,16 @@ import {
   NotificationsLogo as NotifyIcon,
   SearchLogo as SearchIcon,
 } from "./Icons";
-
 import { AiFillHome } from "react-icons/ai";
 import { BiLogOut } from "react-icons/bi";
+import useLogout from "../hooks/useLogout";
+
+import useAuthStore from "../store/useAuthStore";
 
 const Sidebar = () => {
+  const { logout, isLoggingOut } = useLogout();
+  const authUser = useAuthStore((state) => state.user);
+
   const sidebarItems = [
     {
       icon: <AiFillHome size={25} />,
@@ -34,9 +39,11 @@ const Sidebar = () => {
       link: "/post",
     },
     {
-      icon: <Avatar size={"sm"} name="Steven Daye" src="/profile.jpg" />,
+      icon: (
+        <Avatar size={"sm"} name="Steven Daye" src={authUser?.profilePicUrl} />
+      ),
       text: "Profile",
-      link: "/sda",
+      link: authUser?.username,
     },
   ];
 
@@ -114,9 +121,7 @@ const Sidebar = () => {
           openDelay={300}
           display={{ base: "block", md: "none" }}
         >
-          <Link
-            display={"flex"}
-            to={"/auth"}
+          <Flex
             as={RouterLink}
             alignItems={"center"}
             gap={5}
@@ -125,10 +130,18 @@ const Sidebar = () => {
             w={{ base: 10, md: "full" }}
             mt={"auto"}
             _hover={{ bg: "whiteAlpha.400" }}
+            onClick={logout}
           >
             <BiLogOut size={25} />
-            <Box display={{ base: "none", md: "block" }}>Log Out</Box>
-          </Link>
+            <Button
+              variant={"ghost"}
+              isLoading={isLoggingOut}
+              display={{ base: "none", md: "block" }}
+              _hover={{ bg: "transparent" }}
+            >
+              Log Out
+            </Button>
+          </Flex>
         </Tooltip>
       </Flex>
     </Box>
