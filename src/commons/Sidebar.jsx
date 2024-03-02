@@ -12,10 +12,13 @@ import { BiLogOut } from "react-icons/bi";
 import useLogout from "../hooks/useLogout";
 
 import useAuthStore from "../store/useAuthStore";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../firebase/firebase";
 
 const Sidebar = () => {
   const { logout, isLoggingOut } = useLogout();
   const authUser = useAuthStore((state) => state.user);
+  const [user] = useAuthState(auth);
 
   const sidebarItems = [
     {
@@ -40,10 +43,14 @@ const Sidebar = () => {
     },
     {
       icon: (
-        <Avatar size={"sm"} name="Steven Daye" src={authUser?.profilePicUrl} />
+        <Avatar
+          size={"sm"}
+          name="Steven Daye"
+          src={authUser?.profilePicUrl || user.photoURL}
+        />
       ),
       text: "Profile",
-      link: authUser?.username,
+      link: authUser?.username || user.email.split("@")[0],
     },
   ];
 

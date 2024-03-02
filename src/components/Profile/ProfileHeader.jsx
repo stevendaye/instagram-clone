@@ -5,9 +5,23 @@ import {
   Flex,
   Text,
   VStack,
+  useDisclosure,
 } from "@chakra-ui/react";
+import useUserProfileStore from "../../store/useUserProfileStore";
+import useAuthStore from "../../store/useAuthStore";
+import EditProfile from "./EditProfile";
+import useFollow from "../../hooks/useFollow";
 
 const ProfileHeader = () => {
+  const { userProfile } = useUserProfileStore();
+  const authUser = useAuthStore((state) => state.user);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isFollowing, isUpdating, handleFollowUser } = useFollow(
+    userProfile.uuid
+  );
+
+  const isProfileOwner = authUser && authUser.username === userProfile.username;
+
   return (
     <Flex
       gap={{ base: 4, sm: 10 }}
@@ -20,11 +34,7 @@ const ProfileHeader = () => {
         alignSelf={"flex-start"}
         mx={"auto"}
       >
-        <Avatar
-          name="Steven Daye"
-          src="/profile.jpg"
-          alt="Steven Daye Avatar"
-        />
+        <Avatar src={userProfile.profilePicUrl} alt={userProfile.fullName} />
       </AvatarGroup>
 
       <VStack alignItems={"start"} gap={2} mx={"auto"} flex={1}>
@@ -35,7 +45,9 @@ const ProfileHeader = () => {
           alignItems={"center"}
           w={"full"}
         >
-          <Text fontSize={{ base: "sm", md: "lg" }}>Steven Daye</Text>
+          <Text fontSize={{ base: "sm", md: "lg" }}>
+            {userProfile.username}
+          </Text>
 
           <Flex gap={4} alignItems={"center"} justifyContent={"center"}>
             <Button
@@ -43,8 +55,12 @@ const ProfileHeader = () => {
               color={"black"}
               _hover={{ bg: "whiteAlpha.800" }}
               size={{ base: "xs", md: "sm" }}
+              onClick={isProfileOwner ? onOpen : handleFollowUser}
+              isLoading={isProfileOwner ? "" : isUpdating}
             >
-              Edit Profile
+              {isProfileOwner
+                ? "Edit Profile"
+                : `${isFollowing ? "Unfollow" : "Follow"}`}
             </Button>
           </Flex>
         </Flex>
@@ -52,19 +68,19 @@ const ProfileHeader = () => {
         <Flex alignItems={"center"} gap={{ base: 2, sm: 4 }}>
           <Text fontSize={{ base: "xs", md: "sm" }}>
             <Text as="span" fontWeight={"bold"} mr={1}>
-              12
+              {userProfile.posts.length}
             </Text>
             Posts
           </Text>
           <Text fontSize={{ base: "xs", md: "sm" }}>
             <Text as="span" fontWeight={"bold"} mr={1}>
-              144
+              {userProfile.followers.length}
             </Text>
             Followers
           </Text>
           <Text fontSize={{ base: "xs", md: "sm" }}>
             <Text as="span" fontWeight={"bold"} mr={1}>
-              7
+              {userProfile.following.length}
             </Text>
             Following
           </Text>
@@ -72,11 +88,13 @@ const ProfileHeader = () => {
 
         <Flex alignItems={"center"} gap={4}>
           <Text fontSize={"sm"} fontWeight={"bold"}>
-            sda
+            {userProfile.fullName}
           </Text>
         </Flex>
-        <Text fontSize={"sm"}>Cloning Challenging Projects</Text>
+        <Text fontSize={"sm"}>{userProfile.bio}</Text>
       </VStack>
+
+      {isOpen && <EditProfile isOpen={isOpen} onClose={onClose} />}
     </Flex>
   );
 };

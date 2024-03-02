@@ -6,22 +6,21 @@ import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Layout from "./layout/Layout";
 import Profile from "./components/Profile/Profile";
+import PageNotFound from "./components/NotFound/PageNotFound";
 
 function App() {
-  const [isAuthenticated] = useAuthState(auth);
+  const [user] = useAuthState(auth);
 
   return (
     <Layout>
       <Routes>
-        <Route
-          path="/"
-          element={isAuthenticated ? <Home /> : <Navigate to={"/auth"} />}
-        />
+        <Route path="/" element={user ? <Home /> : <Navigate to={"/auth"} />} />
         <Route
           path="/auth"
-          element={!isAuthenticated ? <Auth /> : <Navigate to={"/"} />}
+          element={!user ? <Auth /> : <Navigate to={"/"} />}
         />
         <Route path="/:username" element={<Profile />} />
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
     </Layout>
   );
