@@ -16,12 +16,12 @@ const useFollow = (userId) => {
     try {
       setIsUpdating(true);
       const authUserRef = doc(firestore, "users", user.uuid);
-      const followedUser = doc(firestore, "users", userId);
+      const followedUserRef = doc(firestore, "users", userId);
 
       await updateDoc(authUserRef, {
         following: isFollowing ? arrayRemove(userId) : arrayUnion(userId),
       });
-      await updateDoc(followedUser, {
+      await updateDoc(followedUserRef, {
         followers: isFollowing ? arrayRemove(user.uuid) : arrayUnion(user.uuid),
       });
 
@@ -32,10 +32,23 @@ const useFollow = (userId) => {
           following: user.following.filter((uuid) => uuid !== userId),
         });
 
-        setUserProfile({
-          ...userProfile,
-          followers: userProfile.followers.filter((uuid) => uuid !== user.uuid),
-        });
+        if (userProfile) {
+          if (user.uuid === userProfile.uuid) {
+            setUserProfile({
+              ...userProfile,
+              following: userProfile.following.filter(
+                (uuid) => uuid !== userId
+              ),
+            });
+          } else {
+            setUserProfile({
+              ...userProfile,
+              followers: userProfile.followers.filter(
+                (uuid) => uuid !== user.uuid
+              ),
+            });
+          }
+        }
 
         localStorage.setItem(
           "user-info",
@@ -54,14 +67,24 @@ const useFollow = (userId) => {
         following: [...user.following, userId],
       });
 
-      setUserProfile({
-        ...userProfile,
-        followers: [...userProfile.followers, user.uuid],
-      });
+      if (userProfile) {
+        if (userProfile && user.uuid === userProfile.uuid) {
+          setUserProfile({
+            ...userProfile,
+            following: [...userProfile.following, userId],
+          });
+        } else {
+          setUserProfile({
+            ...userProfile,
+            followers: [...userProfile.followers, user.uuid],
+          });
+        }
+      }
 
       localStorage.setItem(
         "user-info",
         JSON.stringify({
+          ...user,
           following: [...user.following, userId],
         })
       );

@@ -1,6 +1,6 @@
 import {
   Avatar,
-  Box,
+  Button,
   Divider,
   Flex,
   GridItem,
@@ -19,9 +19,16 @@ import { FaComment } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import Comment from "../Comment/Comment";
 import PostFooter from "../Feeds/PostFooter";
+import useUserProfileStore from "../../store/useUserProfileStore";
+import useAuthStore from "../../store/useAuthStore";
+import useDeletePost from "../../hooks/useDeletePost";
 
-const ProfilePost = ({ img }) => {
+const ProfilePost = ({ post }) => {
+  const authUser = useAuthStore((state) => state.user);
+  const userProfile = useUserProfileStore((state) => state.userProfile);
+  const { isDeleting, deleteUserPost } = useDeletePost();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  if (isDeleting) return;
 
   return (
     <>
@@ -53,14 +60,14 @@ const ProfilePost = ({ img }) => {
             <Flex>
               <AiFillHeart size={20} />
               <Text fontWeight={"bold"} ml={2}>
-                114
+                {post.likes.length}
               </Text>
             </Flex>
 
             <Flex>
               <FaComment size={20} />
               <Text fontWeight={"bold"} ml={2}>
-                32
+                {post.comments.length}
               </Text>
             </Flex>
           </Flex>
@@ -68,7 +75,7 @@ const ProfilePost = ({ img }) => {
 
         {/*User's Posts */}
         <Image
-          src={img}
+          src={post.imageURL}
           alt="Profile Post"
           w={"100%"}
           h={"100%"}
@@ -92,28 +99,45 @@ const ProfilePost = ({ img }) => {
               mx={"auto"}
               w={{ base: "90%", sm: "70%", md: "full" }}
               flexDirection={{ base: "column", md: "row" }}
+              minW={"30vh"}
             >
-              <Box borderRadius={4} overflow={"hidden"} flex={1.5}>
-                <Image src={img} alt="Profile Post Image" />
-              </Box>
+              <Flex
+                borderRadius={4}
+                overflow={"hidden"}
+                flex={1.5}
+                alignItems={"center"}
+                justifyContent={"center"}
+              >
+                <Image src={post.imageURL} alt="Profile Post Image" />
+              </Flex>
 
               <Flex flexDirection={"column"} flex={1} px={10}>
                 <Flex alignItems={"center"} justifyContent={"space-between"}>
                   <Flex alignItems={"center"} gap={4}>
-                    <Avatar src="/profile.jpg" name="sda" size={"sm"} />
+                    <Avatar
+                      src={userProfile.profilePicUrl}
+                      name="sda"
+                      size={"sm"}
+                    />
 
                     <Text fontSize={12} fontWeight={"bold"}>
-                      Steven Daye
+                      {userProfile.username}
                     </Text>
                   </Flex>
 
-                  <Box
-                    _hover={{ bg: "whiteAlpha.300", color: "red.600" }}
-                    borderRadius={4}
-                    p={1}
-                  >
-                    <MdDelete size={20} cursor={"pointer"} />
-                  </Box>
+                  {authUser?.uuid === userProfile.uuid && (
+                    <Button
+                      size={"sm"}
+                      background={"transparent"}
+                      _hover={{ bg: "whiteAlpha.300", color: "red.600" }}
+                      borderRadius={4}
+                      p={1}
+                      isLoading={isDeleting}
+                      onClick={() => deleteUserPost(post.id)}
+                    >
+                      <MdDelete size={20} cursor={"pointer"} />
+                    </Button>
+                  )}
                 </Flex>
 
                 <Divider bg={"gray.500"} my={4} />
@@ -124,13 +148,6 @@ const ProfilePost = ({ img }) => {
                   maxH={"350px"}
                   overflowY={"auto"}
                 >
-                  <Comment
-                    profilePic="/profile.jpg"
-                    createdAt={"12h ago"}
-                    text={"Good job there"}
-                    username={"sda"}
-                  />
-
                   <Comment
                     profilePic="https://bit.ly/kent-c-dodds"
                     createdAt={"1d ago"}

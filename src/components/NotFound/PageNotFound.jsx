@@ -7,7 +7,6 @@ const PageNotFound = () => {
       flexDirection={"column"}
       justifyContent={"center"}
       alignItems={"center"}
-      border={"2px solid red"}
       w={"full"}
       height={"100vh"}
       gap={2}
