@@ -1,5 +1,10 @@
 import { create } from "zustand";
 
+/* userProfileStore is the store used on Porfile Header for
+ * followwers count
+ * following count
+ * posts count
+ */
 const useUserProfileStore = create((set) => ({
   userProfile: null,
   setUserProfile: (userProfile) => set({ userProfile }),

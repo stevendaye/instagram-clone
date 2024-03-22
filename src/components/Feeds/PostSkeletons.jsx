@@ -3,7 +3,7 @@ import { Box, Flex, Skeleton, SkeletonCircle, VStack } from "@chakra-ui/react";
 const PostSkeletons = () => {
   return (
     <>
-      {[0, 1, 2, 3, 4].map((_, index) => (
+      {[0, 1, 2].map((_, index) => (
         <VStack key={index} gap={4} alignItems={"flex-start"} mb={10}>
           <Flex
             justifyContent={"space-between"}

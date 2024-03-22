@@ -1,28 +1,28 @@
-import { useEffect, useState } from "react";
-import { Container } from "@chakra-ui/react";
+import { Box, Container, Text } from "@chakra-ui/react";
 import Post from "./Post";
 import PostSkeletons from "./PostSkeletons";
+import useGetFeedPosts from "../../hooks/useGetFeedPosts";
 
 const Posts = () => {
-  const [isLoading, setisLoading] = useState(true);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setisLoading(false);
-    }, 2500);
-  }, []);
+  const { isLoading, posts } = useGetFeedPosts();
 
   return (
     <Container maxW={"container.sms"} py={10} px={2}>
       {isLoading && <PostSkeletons />}
 
-      {!isLoading && (
-        <>
-          <Post img="/img1.png" username="Steven Daye" avatar="/img1.png" />
-          <Post img="/img2.png" username="John Doe" avatar="/img2.png" />
-          <Post img="/img3.png" username="Chris Pathway" avatar="/img3.png" />
-          <Post img="/img4.png" username="Elena Todds" avatar="/img4.png" />
-        </>
+      {!isLoading &&
+        posts.length > 0 &&
+        posts.map((post) => <Post key={post.id} post={post} />)}
+
+      {!isLoading && posts.length === 0 && (
+        <Box>
+          <Text fontSize={"md"} color={"gray"} textAlign={"center"}>
+            It seems like you follow no one yet.
+          </Text>
+          <Text color={"gray"} textAlign={"center"}>
+            Start follwing a few ones you find intersting.
+          </Text>
+        </Box>
       )}
     </Container>
   );

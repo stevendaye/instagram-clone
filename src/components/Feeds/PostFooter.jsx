@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Box,
   Flex,
@@ -13,58 +13,77 @@ import {
   NotificationsLogo as LikeIcon,
   UnlikeLogo as UnlikeIcon,
 } from "../../commons/Icons";
+import useCommentPost from "../../hooks/useCommentPost";
+import useAuthStore from "../../store/useAuthStore";
+import useLikePost from "../../hooks/useLikePost";
+import { timeAgo } from "../../utils/timeAgo";
 
-const PostFooter = ({ username, isProfilePage }) => {
-  const [like, setLike] = useState(false);
-  const [likeCounts, setLikeCounts] = useState(1000);
+const PostFooter = ({ post, owner, isProfilePage }) => {
+  const authUser = useAuthStore((state) => state.user);
+  const { likes, hasLiked, handleLikePost } = useLikePost(post);
   const [clickComment, setClickComment] = useState(false);
+  const [comment, setComment] = useState("");
+  const { isCommenting, commentPost } = useCommentPost();
+  const commentRef = useRef(null);
 
-  const handleLike = () => {
-    if (like) {
-      setLike(false);
-      setLikeCounts(likeCounts - 1);
-      return;
+  const handleClickComment = () => {
+    setClickComment((click) => {
+      return !click;
+    });
+  };
+
+  useEffect(() => {
+    if (clickComment) {
+      commentRef.current.focus();
     }
+  }, [clickComment]);
 
-    setLike(true);
-    setLikeCounts(likeCounts + 1);
+  const handleComment = async () => {
+    if (!comment) return;
+    await commentPost(post.id, comment);
+    setComment("");
   };
 
   return (
     <Box mb={10} marginTop={"auto"}>
       <Flex alignItems={"center"} gap={4} w={"full"} pt={0} mb={2} mt={4}>
-        <Box cursor={"pointer"} fontSize={18} onClick={handleLike}>
-          {!like ? <LikeIcon /> : <UnlikeIcon />}
+        <Box cursor={"pointer"} fontSize={18} onClick={handleLikePost}>
+          {!hasLiked ? <LikeIcon /> : <UnlikeIcon />}
         </Box>
 
-        <Box
-          cursor={"pointer"}
-          fontSize={18}
-          onClick={() => setClickComment(!clickComment)}
-        >
+        <Box cursor={"pointer"} fontSize={18} onClick={handleClickComment}>
           <CommentIcon />
         </Box>
       </Flex>
 
       <Text fontWeight={600} fontSize={"sm"}>
-        {likeCounts} likes
+        {likes} likes
       </Text>
+
+      {isProfilePage && (
+        <Text fontSize={12} color={"gray"}>
+          Posted {timeAgo(post.createdAt)} ago
+        </Text>
+      )}
 
       {!isProfilePage && (
         <>
           <Text fontWeight={700} fontSize={"sm"}>
-            {username}{" "}
+            {owner?.username}{" "}
             <Text as="span" fontWeight={400}>
-              It&apos;s Alright
+              {post.caption}
             </Text>
           </Text>
-          <Text fontSize={"sm"} color={"gray"}>
-            View all 1,000 comments
-          </Text>
+
+          {post.comments.length > 0 && (
+            <Text fontSize={"sm"} color={"gray"}>
+              View all {post.comments.length} comments
+            </Text>
+          )}
         </>
       )}
 
-      {clickComment && (
+      {clickComment && authUser && (
         <Box>
           <Flex
             justifyContent={"space-between"}
@@ -74,9 +93,13 @@ const PostFooter = ({ username, isProfilePage }) => {
           >
             <InputGroup>
               <Input
+                type="text"
                 variant={"flushed"}
                 placeholder="Add a comment"
                 fontSize={14}
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                ref={commentRef}
               />
               <InputRightElement>
                 <Button
@@ -86,6 +109,8 @@ const PostFooter = ({ username, isProfilePage }) => {
                   _hover={{ color: "white" }}
                   bg={"transparent"}
                   cursor={"pointer"}
+                  isLoading={isCommenting}
+                  onClick={handleComment}
                 >
                   Post
                 </Button>

@@ -22,6 +22,7 @@ import PostFooter from "../Feeds/PostFooter";
 import useUserProfileStore from "../../store/useUserProfileStore";
 import useAuthStore from "../../store/useAuthStore";
 import useDeletePost from "../../hooks/useDeletePost";
+import Caption from "../Comment/Caption";
 
 const ProfilePost = ({ post }) => {
   const authUser = useAuthStore((state) => state.user);
@@ -148,31 +149,15 @@ const ProfilePost = ({ post }) => {
                   maxH={"350px"}
                   overflowY={"auto"}
                 >
-                  <Comment
-                    profilePic="https://bit.ly/kent-c-dodds"
-                    createdAt={"1d ago"}
-                    text={"Nice Pic"}
-                    username={"kentdodds"}
-                  />
-
-                  <Comment
-                    profilePic="https://bit.ly/ryan-florence"
-                    createdAt={"2d ago"}
-                    text={"Well crafted"}
-                    username={"ryanflorence"}
-                  />
-
-                  <Comment
-                    profilePic="https://bit.ly/code-beast"
-                    createdAt={"2d ago"}
-                    text={"Well crafted"}
-                    username={"codebeast"}
-                  />
+                  {post.caption && <Caption post={post} />}
+                  {post.comments.map((comment, id) => (
+                    <Comment key={id} comment={JSON.parse(comment)} />
+                  ))}
                 </VStack>
 
                 <Divider bg={"gray.800"} my={4} />
 
-                <PostFooter isProfilePage={true} />
+                <PostFooter post={post} isProfilePage={true} />
               </Flex>
             </Flex>
           </ModalBody>
