@@ -12,15 +12,16 @@ import {
 } from "firebase/firestore";
 import { firestore, storage } from "../firebase/firebase";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
+import { useLocation } from "react-router-dom";
 // import { useLocation } from "react-router-dom";
 
 const useCreatePost = () => {
   const authUser = useAuthStore((state) => state.user);
   const { createPost } = usePostStore();
-  const addPost = useUserProfileStore((state) => state.addPost);
+  const { addPost, userProfile } = useUserProfileStore();
   const [isLoading, setIsLoading] = useState();
   const showToast = useShowToast();
-  // const { pathname } = useLocation();
+  const { pathname } = useLocation();
 
   const handleCreatePost = async (selectedFile, caption) => {
     if (isLoading) return;
@@ -49,8 +50,13 @@ const useCreatePost = () => {
       await updateDoc(postsModel, { imageURL: downloadURL });
 
       newPost.imageURL = downloadURL;
-      createPost({ ...newPost, id: postsModel.id });
-      addPost({ ...newPost, id: postsModel.id });
+
+      if (userProfile.uuid === authUser.uuid)
+        createPost({ ...newPost, id: postsModel.id });
+
+      // Don't increment posts account if login user isn't the same on profile view
+      if (pathname !== "/" && userProfile.uuid === authUser.uuid)
+        addPost({ ...newPost, id: postsModel.id });
 
       showToast("Success", "Post Created Successfully", "success");
     } catch (error) {

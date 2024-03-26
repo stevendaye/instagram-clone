@@ -8,8 +8,9 @@ import {
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import useFollow from "../../hooks/useFollow";
+import { timeAgo } from "../../utils/timeAgo";
 
-const PostHeader = ({ owner }) => {
+const PostHeader = ({ post, owner }) => {
   const { isUpdating, isFollowing, handleFollowUser } = useFollow(owner?.uuid);
   return (
     <Flex
@@ -33,7 +34,7 @@ const PostHeader = ({ owner }) => {
           ) : (
             <Skeleton width={"100px"} height={"10px"} />
           )}
-          <Box color={"gray.500"}>- 1w </Box>
+          <Box color={"gray.500"}>- {timeAgo(post.createdAt)} </Box>
         </Flex>
       </Flex>
 

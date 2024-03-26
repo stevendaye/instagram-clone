@@ -1,12 +1,12 @@
 # Insgram Clone Project
 
-![Alt text](src/assets/homepage.png "Intagram Clone - Home Page")
+![Alt text](src/assets/profile.png "Intagram Clone - profile Page")
 
 This poject focuses on cloning Instagram using the following tech stack
 
 - React.js
   - Hooks
-  - Context API
+  - Zustand
 - Firebase
   - Firestore
   - Authentication

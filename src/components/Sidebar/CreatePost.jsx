@@ -74,10 +74,10 @@ const CreatePost = () => {
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
         <ModalOverlay />
 
-        <ModalContent bg={"black"} border={"1px solid gray"}>
+        <ModalContent>
           <ModalHeader>Create Post</ModalHeader>
           <ModalCloseButton />
-          <ModalBody pb={6}>
+          <ModalBody pb={6} bg={"blackAlpha.700"} py={7} borderRadius={4}>
             <Textarea
               placeholder="Post caption..."
               value={caption}
@@ -121,7 +121,7 @@ const CreatePost = () => {
             )}
           </ModalBody>
 
-          <ModalFooter>
+          <ModalFooter bg={"blackAlpha.700"} py={7}>
             <Button mr={3} isLoading={isLoading} onClick={handlePostCreation}>
               Post
             </Button>
