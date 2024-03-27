@@ -1,4 +1,4 @@
-# Insgram Clone Project
+# Instagram Clone Project
 
 - Project Link: https://instapp-light.vercel.app/
 
